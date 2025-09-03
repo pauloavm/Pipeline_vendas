@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "DB Notebook",
-    "content": "-- Passo 1: Criação do Banco de Dados\n-- Cria o banco de dados 'xingcel' se ele ainda não existir, evitando erros.\nCREATE DATABASE IF NOT EXISTS xingcel;\n\n-- Seleciona o banco de dados 'xingcel' para que todos os comandos seguintes sejam executados nele.\nUSE xingcel;\n\n\n-- Passo 2: Criação da Tabela de Clientes\n-- Esta tabela armazena informações únicas de cada cliente.\nCREATE TABLE IF NOT EXISTS Clientes (\n    id_cliente VARCHAR(36) NOT NULL,       -- O UUID gerado pelo Python. VARCHAR(36) é o tamanho padrão de um UUID.\n    nome VARCHAR(255) NOT NULL,            -- Nome do cliente.\n    email VARCHAR(255) NOT NULL UNIQUE,    -- E-mail do cliente, com uma restrição UNIQUE para não haver duplicatas.\n    pais VARCHAR(100),                     -- País de origem do cliente.\n    PRIMARY KEY (id_cliente)               -- Define 'id_cliente' como a chave primária, o identificador único da tabela.\n);\n\n\n-- Passo 3: Criação da Tabela de Produtos\n-- Esta tabela funciona como nosso catálogo de produtos.\nCREATE TABLE IF NOT EXISTS Produtos (\n    id_produto INT AUTO_INCREMENT,         -- Um ID numérico que se auto-incrementa para cada novo produto. É mais eficiente.\n    nome VARCHAR(255) NOT NULL UNIQUE,     -- Nome do produto, que também deve ser único.\n    categoria VARCHAR(100) NOT NULL,       -- Categoria do produto (ex: 'Celulares', 'Acessórios').\n    preco_unitario DECIMAL(10, 2) NOT NULL, -- Preço do produto. DECIMAL é o tipo ideal para valores monetários.\n    PRIMARY KEY (id_produto)               -- Define 'id_produto' como a chave primária.\n);\n\n\n-- Passo 4: Criação da Tabela de Vendas\n-- Esta é a tabela de transações, que conecta as outras tabelas.\nCREATE TABLE IF NOT EXISTS Vendas (\n    id_venda INT NOT NULL,                 -- O ID da venda, vindo do script Python.\n    data_venda DATETIME NOT NULL,          -- Data e hora exatas da venda.\n    id_cliente VARCHAR(36) NOT NULL,       -- Chave estrangeira que se conecta à tabela 'Clientes'.\n    id_produto INT NOT NULL,               -- Chave estrangeira que se conecta à tabela 'Produtos'.\n    quantidade INT NOT NULL,               -- Quantidade de itens vendidos nesta transação.\n    total_venda DECIMAL(10, 2) NOT NULL,   -- Valor total da transação (Preço Unitário * Quantidade).\n    PRIMARY KEY (id_venda),                -- Define 'id_venda' como a chave primária.\n    \n    -- Definição das relações (chaves estrangeiras)\n    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),\n    FOREIGN KEY (id_produto) REFERENCES Produtos(id_produto)\n);\n",
+    "content": "-- Passo 1: Criação do Banco de Dados\n-- Cria o banco de dados 'xingcel' se ele ainda não existir, evitando erros.\nCREATE DATABASE IF NOT EXISTS xingcel;\n\n-- Seleciona o banco de dados 'xingcel' para que todos os comandos seguintes sejam executados nele.\nUSE xingcel;\n\n\n-- Passo 2: Criação da Tabela de Clientes\n-- Esta tabela armazena informações únicas de cada cliente.\nCREATE TABLE IF NOT EXISTS Clientes (\n    id_cliente VARCHAR(36) NOT NULL,       -- O UUID gerado pelo Python. VARCHAR(36) é o tamanho padrão de um UUID.\n    nome VARCHAR(255) NOT NULL,            -- Nome do cliente.\n    email VARCHAR(255) NOT NULL UNIQUE,    -- E-mail do cliente, com uma restrição UNIQUE para não haver duplicatas.\n    pais VARCHAR(100),                     -- País de origem do cliente.\n    PRIMARY KEY (id_cliente)               -- Define 'id_cliente' como a chave primária, o identificador único da tabela.\n);\n\n\n-- Passo 3: Criação da Tabela de Produtos\n-- Esta tabela funciona como nosso catálogo de produtos.\nCREATE TABLE IF NOT EXISTS Produtos (\n    id_produto INT AUTO_INCREMENT,         -- Um ID numérico que se auto-incrementa para cada novo produto. É mais eficiente.\n    nome VARCHAR(255) NOT NULL UNIQUE,     -- Nome do produto, que também deve ser único.\n    categoria VARCHAR(100) NOT NULL,       -- Categoria do produto (ex: 'Celulares', 'Acessórios').\n    preco_unitario DECIMAL(10, 2) NOT NULL, -- Preço do produto. DECIMAL é o tipo ideal para valores monetários.\n    PRIMARY KEY (id_produto)               -- Define 'id_produto' como a chave primária.\n);\n\n\n-- Passo 4: Criação da Tabela de Vendas\n-- Esta é a tabela de transações, que conecta as outras tabelas.\nCREATE TABLE IF NOT EXISTS Vendas (\n    id_venda INT NOT NULL,                 -- O ID da venda, vindo do script Python.\n    data_venda DATETIME NOT NULL,          -- Data e hora exatas da venda.\n    id_cliente VARCHAR(36) NOT NULL,       -- Chave estrangeira que se conecta à tabela 'Clientes'.\n    id_produto INT NOT NULL,               -- Chave estrangeira que se conecta à tabela 'Produtos'.\n    quantidade INT NOT NULL,               -- Quantidade de itens vendidos nesta transação.\n    total_venda DECIMAL(10, 2) NOT NULL,   -- Valor total da transação (Preço Unitário * Quantidade).\n    PRIMARY KEY (id_venda),                -- Define 'id_venda' como a chave primária.\n    \n    -- Definição das relações (chaves estrangeiras)\n    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),\n    FOREIGN KEY (id_produto) REFERENCES Produtos(id_produto)\n);\nSHOW DATABASES;\n-- correção de lógica\nUSE xingcel;\nSET FOREIGN_KEY_CHECKS = 0; -- Desativa a verificação de chaves para poder limpar\nTRUNCATE TABLE Vendas;\nTRUNCATE TABLE Clientes;\nTRUNCATE TABLE Produtos;\nSET FOREIGN_KEY_CHECKS = 1; -- Reativa a verificação\n",
     "options": {
         "tabSize": 4,
         "indentSize": 4,
@@ -15,11 +15,11 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 46,
+                    "lineNumber": 54,
                     "column": 1
                 },
                 "position": {
-                    "lineNumber": 46,
+                    "lineNumber": 54,
                     "column": 1
                 }
             }
@@ -27,10 +27,10 @@
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 25,
+                "lineNumber": 39,
                 "column": 1
             },
-            "firstPositionDeltaTop": -23
+            "firstPositionDeltaTop": -10
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -49,32 +49,32 @@
                         {
                             "type": 2,
                             "index": 0,
-                            "resultId": "8ed717e4-f861-456c-bf86-47dbe62bcedd",
-                            "content": "OK, 1 row affected in 1.51ms"
+                            "resultId": "79cc020d-412d-428e-9187-a52b7c943d34",
+                            "content": "OK, 1 row affected in 4.465ms"
                         },
                         {
                             "type": 2,
                             "index": 1,
-                            "resultId": "6e131c33-8bff-4419-a83e-6a786d0612eb",
-                            "content": "OK, 0 records retrieved in 0.996ms"
+                            "resultId": "40c9799d-958d-4b30-af21-410870786aab",
+                            "content": "OK, 0 records retrieved in 1.31ms"
                         },
                         {
                             "type": 2,
                             "index": 2,
-                            "resultId": "13639c3e-1c21-4203-864e-79743d2257d8",
-                            "content": "OK, 0 records retrieved in 13.7ms"
+                            "resultId": "38784cd0-eea1-4c8c-e123-b6c359d4bbf4",
+                            "content": "OK, 0 records retrieved in 16.195ms"
                         },
                         {
                             "type": 2,
                             "index": 3,
-                            "resultId": "d6ba897d-22e1-41e5-a0d2-18512a234a46",
-                            "content": "OK, 0 records retrieved in 11.869ms"
+                            "resultId": "abec08fe-e950-4c1c-9e5f-01eb5aee5f53",
+                            "content": "OK, 0 records retrieved in 13.368ms"
                         },
                         {
                             "type": 2,
                             "index": 4,
-                            "resultId": "115b0bb9-4730-479f-9f6f-3b5f3d5f9bd1",
-                            "content": "OK, 0 records retrieved in 14.566ms"
+                            "resultId": "cf57ecca-49d2-4b38-a93d-48826ae096ba",
+                            "content": "OK, 0 records retrieved in 16.873ms"
                         }
                     ]
                 },
@@ -125,15 +125,6 @@
                         },
                         "contentStart": 1671,
                         "state": 0
-                    },
-                    {
-                        "delimiter": ";",
-                        "span": {
-                            "start": 2530,
-                            "length": 0
-                        },
-                        "contentStart": 2529,
-                        "state": 3
                     }
                 ]
             },
@@ -143,6 +134,206 @@
             "state": {
                 "start": 46,
                 "end": 46,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "b4cff962-5fe8-42a1-bb24-476fbccf9070"
+                    ]
+                },
+                "currentHeight": 216,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 15
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "4a0ddc09-4dcd-4ffe-ca89-df6230588ec3",
+                    "resultId": "b4cff962-5fe8-42a1-bb24-476fbccf9070",
+                    "rows": [
+                        {
+                            "0": "information_schema"
+                        },
+                        {
+                            "0": "mysql"
+                        },
+                        {
+                            "0": "performance_schema"
+                        },
+                        {
+                            "0": "sys"
+                        },
+                        {
+                            "0": "xingcel"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Database",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 1.651ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SHOW DATABASES",
+                    "updatable": false
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 47,
+                "end": 53,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "68b21664-bf44-40fa-deb5-dcc83680f532",
+                            "content": "OK, 0 records retrieved in 1.299ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "be21c46e-b28d-49c8-d50c-06a1c509bff4",
+                            "content": "OK, 0 records retrieved in 1.129ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 2,
+                            "resultId": "5f76c066-ad16-4463-ae08-cfbe909e86be",
+                            "content": "OK, 0 records retrieved in 10.216ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 3,
+                            "resultId": "a834f6cf-ca89-449e-8839-d744451374d3",
+                            "content": "OK, 0 records retrieved in 12.548ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 4,
+                            "resultId": "4adbb797-df46-468a-bf89-b881a71c26a6",
+                            "content": "OK, 0 records retrieved in 10.291ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 5,
+                            "resultId": "26864c3e-d13e-4df7-c93b-26e70bf5a497",
+                            "content": "OK, 0 records retrieved in 1.068ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 6,
+                            "resultId": "e7363c63-e977-4c8e-b31b-e664443df983",
+                            "content": "OK, 0 records retrieved in 1.096ms"
+                        }
+                    ]
+                },
+                "currentHeight": 169,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 34
+                        },
+                        "contentStart": 22,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 34,
+                            "length": 28
+                        },
+                        "contentStart": 35,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 62,
+                            "length": 77
+                        },
+                        "contentStart": 117,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 139,
+                            "length": 25
+                        },
+                        "contentStart": 140,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 164,
+                            "length": 25
+                        },
+                        "contentStart": 165,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 189,
+                            "length": 28
+                        },
+                        "contentStart": 190,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 217,
+                            "length": 25
+                        },
+                        "contentStart": 217,
+                        "state": 1
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 54,
+                "end": 54,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [

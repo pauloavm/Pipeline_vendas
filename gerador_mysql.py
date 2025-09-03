@@ -1,16 +1,12 @@
-from faker import Faker
 import random
+import os
 from datetime import datetime
+from faker import Faker
 import mysql.connector
-from dotenv import load_dotenv  # Importa a função para carregar o .env
-import os  # Importa a biblioteca para acessar as variáveis de ambiente
+from dotenv import load_dotenv
 
 # --- INÍCIO: Carregamento das Credenciais ---
-# Carrega as variáveis do arquivo .env para o ambiente da aplicação
 load_dotenv()
-
-# Busca as credenciais do ambiente e monta o dicionário de configuração
-# A função os.getenv('CHAVE') lê a variável do ambiente.
 DB_CONFIG = {
     "host": os.getenv("DB_HOST"),
     "port": os.getenv("DB_PORT"),
@@ -20,13 +16,11 @@ DB_CONFIG = {
 }
 # --- FIM: Carregamento das Credenciais ---
 
-# O restante do código permanece exatamente o mesmo
-# ... (código de inicialização do Faker, dicionário de produtos, funções, etc.) ...
-# Inicializando a Faker
+# Inicialização do Faker
 locales = ["en_US", "pt_BR", "es_ES", "fr_FR", "de_DE", "it_IT", "ru_RU", "pt_PT"]
 faker = Faker(locales)
 
-# Dicionário de produtos
+# Catálogo de produtos
 produtos_eletronicos = {
     "Celulares": {
         "iPhone 13": 850.00,
@@ -46,7 +40,25 @@ produtos_eletronicos = {
 }
 
 
+# <<< NOVA FUNÇÃO >>>
+def carregar_clientes_existentes(cursor):
+    """Lê o banco de dados e carrega os clientes já existentes para a memória."""
+    print("Carregando clientes existentes do banco de dados...")
+    pool = {}
+    cursor.execute("SELECT id_cliente, nome, email, pais FROM Clientes")
+    for id_cliente, nome, email, pais in cursor.fetchall():
+        pool[email] = {
+            "ID_Cliente": id_cliente,
+            "Nome_Cliente": nome,
+            "Email_Cliente": email,
+            "País": pais,
+        }
+    print(f"{len(pool)} clientes existentes foram carregados.")
+    return pool
+
+
 def popular_produtos(cursor):
+    """Insere os produtos do dicionário na tabela Produtos e retorna um dict com os dados do BD."""
     print("Populando a tabela de Produtos...")
     lista_produtos_para_inserir = []
     for categoria, produtos in produtos_eletronicos.items():
@@ -58,7 +70,6 @@ def popular_produtos(cursor):
 
     cursor.execute("SELECT id_produto, nome, preco_unitario FROM Produtos")
     produtos_do_banco = cursor.fetchall()
-
     produtos_dict = {
         nome: {"id": id_prod, "preco": preco}
         for id_prod, nome, preco in produtos_do_banco
@@ -67,86 +78,92 @@ def popular_produtos(cursor):
     return produtos_dict
 
 
-def generate_customer_email(customer_name, existing_emails):
+def generate_customer_email(customer_name):
+    """Gera um e-mail a partir de um nome de cliente."""
     name_parts = customer_name.lower().split()
     first_name = name_parts[0]
     last_name = name_parts[-1] if len(name_parts) > 1 else ""
     email_domains = ["gmail.com", "outlook.com", "yahoo.com", "hotmail.com"]
-    base_email = f"{first_name}.{last_name}".replace(" ", "")
+    base_email = "".join(
+        e for e in f"{first_name}.{last_name}" if e.isalnum() or e == "."
+    )
     email_domain = random.choice(email_domains)
-    customer_email = f"{base_email}@{email_domain}"
-    counter = 1
-    while customer_email in existing_emails:
-        customer_email = f"{base_email}{counter}@{email_domain}"
-        counter += 1
-    return customer_email
+    return f"{base_email}@{email_domain}"
 
 
-def generate_customer(existing_customers_emails):
+def generate_customer():
+    """Gera um novo cliente fictício."""
     locale = random.choice(locales)
     faker_locale = Faker(locale)
     customer_name = faker_locale.name()
-    customer_email = generate_customer_email(customer_name, existing_customers_emails)
-    customer_country = faker_locale.country()
     return {
-        "ID_Cliente": faker.uuid4(),
+        "ID_Cliente": str(faker.uuid4()),  # Converte para string imediatamente
         "Nome_Cliente": customer_name,
-        "Email_Cliente": customer_email,
-        "País": customer_country,
+        "Email_Cliente": generate_customer_email(customer_name),
+        "País": faker_locale.country(),
     }
 
 
 def generate_sale_data(sale_id, start_date, end_date, customers_pool, produtos_dict):
-    cliente_novo = None
+    """Gera dados de venda, reutilizando ou criando clientes de forma consistente."""
+    cliente_a_ser_inserido_no_bd = None
+    customer_data = None
 
+    # 70% de chance de ser cliente recorrente
     if random.random() < 0.7 and customers_pool:
-        customer = random.choice(list(customers_pool.values()))
+        random_email = random.choice(list(customers_pool.keys()))
+        customer_data = customers_pool[random_email]
     else:
-        existing_emails = [c["Email_Cliente"] for c in customers_pool.values()]
-        new_customer = generate_customer(existing_emails)
-        customers_pool[new_customer["ID_Cliente"]] = new_customer
-        customer = new_customer
-        cliente_novo = new_customer
+        novo_cliente_potencial = generate_customer()
+        email_novo = novo_cliente_potencial["Email_Cliente"]
+
+        if email_novo in customers_pool:
+            customer_data = customers_pool[email_novo]
+        else:
+            customers_pool[email_novo] = novo_cliente_potencial
+            customer_data = novo_cliente_potencial
+            cliente_a_ser_inserido_no_bd = novo_cliente_potencial
 
     sale_date = faker.date_time_between(start_date=start_date, end_date=end_date)
-
     produto_escolhido_nome = random.choice(list(produtos_dict.keys()))
     produto_info = produtos_dict[produto_escolhido_nome]
-
-    id_produto = produto_info["id"]
-    product_price = produto_info["preco"]
-    quantity = random.randint(1, 5)
-    total_sale = round(float(product_price) * quantity, 2)
+    total_sale = round(float(produto_info["preco"]) * random.randint(1, 5), 2)
 
     dados_venda = (
         sale_id,
         sale_date,
-        customer["ID_Cliente"],
-        id_produto,
-        quantity,
+        customer_data["ID_Cliente"],
+        produto_info["id"],
+        random.randint(1, 5),
         total_sale,
     )
 
-    dados_cliente = None
-    if cliente_novo:
-        dados_cliente = (
-            cliente_novo["ID_Cliente"],
-            cliente_novo["Nome_Cliente"],
-            cliente_novo["Email_Cliente"],
-            cliente_novo["País"],
+    dados_cliente_tuple = None
+    if cliente_a_ser_inserido_no_bd:
+        dados_cliente_tuple = (
+            cliente_a_ser_inserido_no_bd["ID_Cliente"],
+            cliente_a_ser_inserido_no_bd["Nome_Cliente"],
+            cliente_a_ser_inserido_no_bd["Email_Cliente"],
+            cliente_a_ser_inserido_no_bd["País"],
         )
 
-    return dados_venda, dados_cliente
+    return dados_venda, dados_cliente_tuple
 
 
+# --- Bloco Principal de Execução ---
 if __name__ == "__main__":
-    # Verificação simples para garantir que as credenciais foram carregadas
-    if not all(DB_CONFIG.values()):
-        print(
-            "Erro: As credenciais do banco de dados não foram encontradas no arquivo .env ou estão incompletas."
-        )
+    if not all(
+        [
+            DB_CONFIG.get("host"),
+            DB_CONFIG.get("user"),
+            DB_CONFIG.get("password"),
+            DB_CONFIG.get("database"),
+        ]
+    ):
+        print("Erro: Credenciais do banco de dados incompletas no arquivo .env.")
         exit()
 
+    conn = None  # Inicializa conn como None
     try:
         print("Conectando ao banco de dados MySQL...")
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -156,8 +173,14 @@ if __name__ == "__main__":
         produtos_banco = popular_produtos(cursor)
         conn.commit()
 
+        # <<< PASSO FUNDAMENTAL: SINCRONIZAÇÃO >>>
+        # Carrega todos os clientes que já existem no BD para a memória.
+        customers_pool = carregar_clientes_existentes(cursor)
+
         num_records_input = input("Insira a quantidade de VENDAS que deseja criar: ")
-        num_records = int(num_records_input) if num_records_input.strip() else 1000
+        num_records = (
+            int(num_records_input.strip()) if num_records_input.strip() else 1000
+        )
         year_start = int(
             input("Insira o ano de início para as vendas (ex: 2022): ") or "2022"
         )
@@ -167,62 +190,47 @@ if __name__ == "__main__":
         start_date = datetime(year_start, 1, 1)
         end_date = datetime(year_end, 12, 31)
 
-        customers_pool = {}
         lote_vendas = []
         lote_clientes = []
 
-        print(f"Gerando {num_records} registros de vendas...")
+        print(f"Gerando {num_records} novos registros de vendas...")
 
         for i in range(1, num_records + 1):
             venda, cliente = generate_sale_data(
                 i, start_date, end_date, customers_pool, produtos_banco
             )
-
             lote_vendas.append(venda)
             if cliente:
                 lote_clientes.append(cliente)
 
-            if i % 1000 == 0:
-                print(
-                    f"Inserindo lote de {len(lote_clientes)} clientes e {len(lote_vendas)} vendas... ({i}/{num_records})"
-                )
+            if i % 1000 == 0 or i == num_records:
+                print(f"Processando lote... ({i}/{num_records})")
                 if lote_clientes:
+                    print(f"--> Inserindo {len(lote_clientes)} novos clientes...")
                     cursor.executemany(
                         "INSERT IGNORE INTO Clientes (id_cliente, nome, email, pais) VALUES (%s, %s, %s, %s)",
                         lote_clientes,
                     )
-                cursor.executemany(
-                    "INSERT INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)",
-                    lote_vendas,
-                )
-                conn.commit()
-                lote_vendas = []
-                lote_clientes = []
+                if lote_vendas:
+                    print(f"--> Inserindo {len(lote_vendas)} novas vendas...")
+                    cursor.executemany(
+                        "INSERT INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)",
+                        lote_vendas,
+                    )
 
-        if lote_vendas:
-            print(
-                f"Inserindo lote final de {len(lote_clientes)} clientes e {len(lote_vendas)} vendas..."
-            )
-            if lote_clientes:
-                cursor.executemany(
-                    "INSERT IGNORE INTO Clientes (id_cliente, nome, email, pais) VALUES (%s, %s, %s, %s)",
-                    lote_clientes,
-                )
-            cursor.executemany(
-                "INSERT INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)",
-                lote_vendas,
-            )
-            conn.commit()
+                conn.commit()
+                print("--> Lote salvo no banco de dados.")
+                lote_vendas, lote_clientes = [], []
 
         print("\nProcesso concluído com sucesso!")
         print(
-            f"{num_records} vendas e {len(customers_pool)} clientes foram processados."
+            f"{num_records} vendas foram processadas. O pool agora contém {len(customers_pool)} clientes únicos."
         )
 
     except mysql.connector.Error as err:
         print(f"Erro de banco de dados: {err}")
     finally:
-        if "conn" in locals() and conn.is_connected():
+        if conn and conn.is_connected():
             cursor.close()
             conn.close()
             print("Conexão com o MySQL foi fechada.")
