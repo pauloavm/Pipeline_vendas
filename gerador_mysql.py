@@ -16,11 +16,9 @@ DB_CONFIG = {
 }
 # --- FIM: Carregamento das Credenciais ---
 
-# Inicialização do Faker
 locales = ["en_US", "pt_BR", "es_ES", "fr_FR", "de_DE", "it_IT", "ru_RU", "pt_PT"]
 faker = Faker(locales)
 
-# Catálogo de produtos
 produtos_eletronicos = {
     "Celulares": {
         "iPhone 13": 850.00,
@@ -40,17 +38,18 @@ produtos_eletronicos = {
 }
 
 
-# <<< NOVA FUNÇÃO >>>
 def carregar_clientes_existentes(cursor):
-    """Lê o banco de dados e carrega os clientes já existentes para a memória."""
+    """Lê o banco de dados e carrega os clientes já existentes para a memória, com e-mails em minúsculas."""
     print("Carregando clientes existentes do banco de dados...")
     pool = {}
     cursor.execute("SELECT id_cliente, nome, email, pais FROM Clientes")
     for id_cliente, nome, email, pais in cursor.fetchall():
-        pool[email] = {
+        # <<< CORREÇÃO DE CASE SENSITIVITY >>>
+        # Garante que a chave do dicionário seja sempre minúscula
+        pool[email.lower()] = {
             "ID_Cliente": id_cliente,
             "Nome_Cliente": nome,
-            "Email_Cliente": email,
+            "Email_Cliente": email,  # Mantemos o email original no valor, se desejado
             "País": pais,
         }
     print(f"{len(pool)} clientes existentes foram carregados.")
@@ -92,14 +91,18 @@ def generate_customer_email(customer_name):
 
 
 def generate_customer():
-    """Gera um novo cliente fictício."""
+    """Gera um novo cliente fictício, com e-mail em minúsculas."""
     locale = random.choice(locales)
     faker_locale = Faker(locale)
     customer_name = faker_locale.name()
+    # <<< CORREÇÃO DE CASE SENSITIVITY >>>
+    # Garante que todo e-mail gerado seja sempre minúsculo
+    customer_email = generate_customer_email(customer_name).lower()
+
     return {
-        "ID_Cliente": str(faker.uuid4()),  # Converte para string imediatamente
+        "ID_Cliente": str(faker.uuid4()),
         "Nome_Cliente": customer_name,
-        "Email_Cliente": generate_customer_email(customer_name),
+        "Email_Cliente": customer_email,
         "País": faker_locale.country(),
     }
 
@@ -109,13 +112,12 @@ def generate_sale_data(sale_id, start_date, end_date, customers_pool, produtos_d
     cliente_a_ser_inserido_no_bd = None
     customer_data = None
 
-    # 70% de chance de ser cliente recorrente
     if random.random() < 0.7 and customers_pool:
         random_email = random.choice(list(customers_pool.keys()))
         customer_data = customers_pool[random_email]
     else:
         novo_cliente_potencial = generate_customer()
-        email_novo = novo_cliente_potencial["Email_Cliente"]
+        email_novo = novo_cliente_potencial["Email_Cliente"]  # Já está em minúsculas
 
         if email_novo in customers_pool:
             customer_data = customers_pool[email_novo]
@@ -127,14 +129,15 @@ def generate_sale_data(sale_id, start_date, end_date, customers_pool, produtos_d
     sale_date = faker.date_time_between(start_date=start_date, end_date=end_date)
     produto_escolhido_nome = random.choice(list(produtos_dict.keys()))
     produto_info = produtos_dict[produto_escolhido_nome]
-    total_sale = round(float(produto_info["preco"]) * random.randint(1, 5), 2)
+    quantidade = random.randint(1, 5)
+    total_sale = round(float(produto_info["preco"]) * quantidade, 2)
 
     dados_venda = (
         sale_id,
         sale_date,
         customer_data["ID_Cliente"],
         produto_info["id"],
-        random.randint(1, 5),
+        quantidade,
         total_sale,
     )
 
@@ -151,6 +154,7 @@ def generate_sale_data(sale_id, start_date, end_date, customers_pool, produtos_d
 
 
 # --- Bloco Principal de Execução ---
+# --- Bloco Principal de Execução ---
 if __name__ == "__main__":
     if not all(
         [
@@ -163,7 +167,7 @@ if __name__ == "__main__":
         print("Erro: Credenciais do banco de dados incompletas no arquivo .env.")
         exit()
 
-    conn = None  # Inicializa conn como None
+    conn = None
     try:
         print("Conectando ao banco de dados MySQL...")
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -173,8 +177,6 @@ if __name__ == "__main__":
         produtos_banco = popular_produtos(cursor)
         conn.commit()
 
-        # <<< PASSO FUNDAMENTAL: SINCRONIZAÇÃO >>>
-        # Carrega todos os clientes que já existem no BD para a memória.
         customers_pool = carregar_clientes_existentes(cursor)
 
         num_records_input = input("Insira a quantidade de VENDAS que deseja criar: ")
@@ -203,7 +205,8 @@ if __name__ == "__main__":
             if cliente:
                 lote_clientes.append(cliente)
 
-            if i % 1000 == 0 or i == num_records:
+            # Processar lotes menores (ex.: a cada 100 registros)
+            if i % 100 == 0 or i == num_records:
                 print(f"Processando lote... ({i}/{num_records})")
                 if lote_clientes:
                     print(f"--> Inserindo {len(lote_clientes)} novos clientes...")
@@ -211,16 +214,37 @@ if __name__ == "__main__":
                         "INSERT IGNORE INTO Clientes (id_cliente, nome, email, pais) VALUES (%s, %s, %s, %s)",
                         lote_clientes,
                     )
+                    conn.commit()  # Commit dos clientes antes das vendas
+                    # Atualizar customers_pool com IDs do banco
+                    customers_pool = carregar_clientes_existentes(cursor)
+
+                # --- INÍCIO: Verificação de id_cliente ---
                 if lote_vendas:
+                    id_clientes = [v[2] for v in lote_vendas]
+                if id_clientes:  # Verifica se a lista não está vazia
+                    placeholders = ",".join(["%s"] * len(id_clientes))
+                    cursor.execute(
+                        f"SELECT id_cliente FROM Clientes WHERE id_cliente IN ({placeholders})",
+                        id_clientes,
+                    )
+                    clientes_existentes = {row[0] for row in cursor.fetchall()}
+                for venda in lote_vendas:
+                    if venda[2] not in clientes_existentes:
+                        print(
+                            f"Erro: id_cliente {venda[2]} não encontrado na tabela Clientes!"
+                        )
+                else:
+                    print("Nenhum id_cliente para verificar no lote atual.")
+                    # --- FIM: Verificação de id_cliente ---
+
                     print(f"--> Inserindo {len(lote_vendas)} novas vendas...")
                     cursor.executemany(
                         "INSERT INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)",
                         lote_vendas,
                     )
-
-                conn.commit()
-                print("--> Lote salvo no banco de dados.")
-                lote_vendas, lote_clientes = [], []
+                    conn.commit()  # Commit das vendas
+                    print("--> Lote salvo no banco de dados.")
+                    lote_vendas, lote_clientes = [], []
 
         print("\nProcesso concluído com sucesso!")
         print(
