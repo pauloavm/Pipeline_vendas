@@ -1,0 +1,1585 @@
+{
+    "type": "MySQLNotebook",
+    "version": "1.0",
+    "caption": "DB Notebook",
+    "content": "USE xingcel;\nSELECT * FROM Clientes LIMIT 10;\nSELECT * FROM Produtos;\nSELECT * FROM Vendas LIMIT 10;\nSELECT COUNT(*) AS total_clientes FROM Clientes;\nSELECT COUNT(*) AS total_clientes FROM Clientes;\nSELECT COUNT(*) AS total_produtos FROM Produtos;\nSELECT COUNT(*) AS total_vendas FROM Vendas;\nSELECT\n    v.id_venda,\n    v.data_venda,\n    c.nome AS nome_cliente,\n    c.cidade,\n    c.estado,\n    p.nome AS nome_produto,\n    p.categoria,\n    v.quantidade,\n    v.total_venda\nFROM\n    Vendas AS v\nJOIN\n    Clientes AS c ON v.id_cliente = c.id_cliente\nJOIN\n    Produtos AS p ON v.id_produto = p.id_produto\nORDER BY\n    RAND() -- Ordena aleatoriamente para obter uma amostra diferente a cada execução\nLIMIT 5;\nSELECT SUM(total_venda) AS faturamento_total FROM Vendas;\nSELECT\n    p.nome AS nome_produto,\n    SUM(v.quantidade) AS quantidade_total_vendida\nFROM\n    Vendas AS v\nJOIN\n    Produtos AS p ON v.id_produto = p.id_produto\nGROUP BY\n    p.nome\nORDER BY\n    quantidade_total_vendida DESC\nLIMIT 5;\nSELECT\n    c.estado,\n    SUM(v.total_venda) AS valor_total_vendas\nFROM\n    Vendas AS v\nJOIN\n    Clientes AS c ON v.id_cliente = c.id_cliente\nGROUP BY\n    c.estado\nORDER BY\n    valor_total_vendas DESC\nLIMIT 5;\n",
+    "options": {
+        "tabSize": 4,
+        "indentSize": 4,
+        "insertSpaces": true,
+        "defaultEOL": "LF",
+        "trimAutoWhitespace": true
+    },
+    "viewState": {
+        "cursorState": [
+            {
+                "inSelectionMode": false,
+                "selectionStart": {
+                    "lineNumber": 53,
+                    "column": 1
+                },
+                "position": {
+                    "lineNumber": 53,
+                    "column": 1
+                }
+            }
+        ],
+        "viewState": {
+            "scrollLeft": 0,
+            "firstPosition": {
+                "lineNumber": 35,
+                "column": 1
+            },
+            "firstPositionDeltaTop": -15
+        },
+        "contributionsState": {
+            "editor.contrib.folding": {},
+            "editor.contrib.wordHighlighter": false
+        }
+    },
+    "contexts": [
+        {
+            "state": {
+                "start": 1,
+                "end": 1,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "3bc12658-dede-40df-d448-1a4fcbc69933",
+                            "content": "OK, 0 records retrieved in 1.444ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 12
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 2,
+                "end": 2,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "0e523cf4-9ec1-464e-b2d4-90c9955475ca"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 32
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "0e523cf4-9ec1-464e-b2d4-90c9955475ca",
+                    "rows": [
+                        {
+                            "0": "00bf9c56-cd6a-4e1e-b762-4991f447e026",
+                            "1": "Clarice da Conceição",
+                            "2": "claricedaconceição@hotmail.com",
+                            "3": "Brasil",
+                            "4": "Amazonas",
+                            "5": "da Cunha Grande"
+                        },
+                        {
+                            "0": "00d2436d-f447-435a-9268-5328b56c6f61",
+                            "1": "Alexandre Pires",
+                            "2": "alexandrepires@yahoo.com.br",
+                            "3": "Brasil",
+                            "4": "Alagoas",
+                            "5": "Pinto"
+                        },
+                        {
+                            "0": "0179f976-6df8-4cbb-9622-fa03e745e1c1",
+                            "1": "Clara Camargo",
+                            "2": "claracamargo@gmail.com",
+                            "3": "Brasil",
+                            "4": "Maranhão",
+                            "5": "Cardoso"
+                        },
+                        {
+                            "0": "0185891f-0fda-459f-8a55-7ffbfe4833e2",
+                            "1": "Benício Alves",
+                            "2": "benícioalves@yahoo.com.br",
+                            "3": "Brasil",
+                            "4": "Mato Grosso do Sul",
+                            "5": "Fernandes de Correia"
+                        },
+                        {
+                            "0": "018d9f10-25dc-49dd-b299-6689edaa946a",
+                            "1": "Ayla Moreira",
+                            "2": "aylamoreira@yahoo.com.br",
+                            "3": "Brasil",
+                            "4": "Pará",
+                            "5": "da Mata"
+                        },
+                        {
+                            "0": "02032f18-1ee0-4d30-b87c-b96020d88bff",
+                            "1": "Matheus Carvalho",
+                            "2": "matheuscarvalho@yahoo.com.br",
+                            "3": "Brasil",
+                            "4": "Acre",
+                            "5": "Silveira"
+                        },
+                        {
+                            "0": "02269d64-b790-484d-b18c-d3228ed00d5d",
+                            "1": "Carolina Campos",
+                            "2": "carolinacampos@gmail.com",
+                            "3": "Brasil",
+                            "4": "Pará",
+                            "5": "Pastor"
+                        },
+                        {
+                            "0": "024222c8-3a78-4280-83b7-3cf9aab1a84f",
+                            "1": "Enzo Gabriel Campos",
+                            "2": "enzogabrielcampos@hotmail.com",
+                            "3": "Brasil",
+                            "4": "Mato Grosso",
+                            "5": "Vasconcelos de Minas"
+                        },
+                        {
+                            "0": "0254b9a2-65f0-4ec9-acd7-9100a74593f7",
+                            "1": "Maria Luísa Cavalcante",
+                            "2": "marialuísacavalcante@gmail.com",
+                            "3": "Brasil",
+                            "4": "Roraima",
+                            "5": "Nogueira das Pedras"
+                        },
+                        {
+                            "0": "02c90c1e-e15c-4244-bdcf-1eb0d6943278",
+                            "1": "Maria Montenegro",
+                            "2": "mariamontenegro@gmail.com",
+                            "3": "Brasil",
+                            "4": "São Paulo",
+                            "5": "Correia de Araújo"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id_cliente",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "nome",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "email",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "pais",
+                            "field": "3",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "estado",
+                            "field": "4",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "cidade",
+                            "field": "5",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 10 records retrieved in 1.333ms"
+                    },
+                    "totalRowCount": 10,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT * FROM Clientes LIMIT 10",
+                    "updatable": true,
+                    "fullTableName": "Clientes"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 3,
+                "end": 3,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "67c2287e-290d-437a-a868-1ca4ef0574aa"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 23
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "67c2287e-290d-437a-a868-1ca4ef0574aa",
+                    "rows": [
+                        {
+                            "0": 1,
+                            "1": "iPhone 13",
+                            "2": "Celulares",
+                            "3": "850.00"
+                        },
+                        {
+                            "0": 2,
+                            "1": "Samsung Galaxy S22",
+                            "2": "Celulares",
+                            "3": "799.00"
+                        },
+                        {
+                            "0": 3,
+                            "1": "Google Pixel 6",
+                            "2": "Celulares",
+                            "3": "699.00"
+                        },
+                        {
+                            "0": 4,
+                            "1": "Xiaomi 12",
+                            "2": "Celulares",
+                            "3": "599.00"
+                        },
+                        {
+                            "0": 5,
+                            "1": "OnePlus 10 Pro",
+                            "2": "Celulares",
+                            "3": "750.00"
+                        },
+                        {
+                            "0": 6,
+                            "1": "Carregador USB-C",
+                            "2": "Acessórios",
+                            "3": "25.00"
+                        },
+                        {
+                            "0": 7,
+                            "1": "Capa de Silicone",
+                            "2": "Acessórios",
+                            "3": "15.00"
+                        },
+                        {
+                            "0": 8,
+                            "1": "Fone de Ouvido Bluetooth",
+                            "2": "Acessórios",
+                            "3": "50.00"
+                        },
+                        {
+                            "0": 9,
+                            "1": "Smartwatch",
+                            "2": "Acessórios",
+                            "3": "150.00"
+                        },
+                        {
+                            "0": 10,
+                            "1": "Power Bank 10000mAh",
+                            "2": "Acessórios",
+                            "3": "30.00"
+                        },
+                        {
+                            "0": 11,
+                            "1": "Protetor de tela de vidro",
+                            "2": "Acessórios",
+                            "3": "10.00"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id_produto",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": true
+                        },
+                        {
+                            "title": "nome",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "categoria",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "preco_unitario",
+                            "field": "3",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 11 records retrieved in 1.427ms"
+                    },
+                    "totalRowCount": 11,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT * FROM Produtos",
+                    "updatable": true,
+                    "fullTableName": "Produtos"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 4,
+                "end": 4,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "4daf939c-2728-46f9-b868-4fa1cba53d02"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 30
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "4daf939c-2728-46f9-b868-4fa1cba53d02",
+                    "rows": [
+                        {
+                            "0": 1,
+                            "1": "2023-07-24 07:32:02",
+                            "2": "fcb0dda5-a029-43f7-adc7-20fabb8dbb13",
+                            "3": 4,
+                            "4": 1,
+                            "5": "599.00"
+                        },
+                        {
+                            "0": 2,
+                            "1": "2024-09-08 11:34:59",
+                            "2": "2e418258-86bb-4b8b-8c14-406b83c12e28",
+                            "3": 5,
+                            "4": 4,
+                            "5": "3000.00"
+                        },
+                        {
+                            "0": 3,
+                            "1": "2024-03-04 20:00:43",
+                            "2": "fcb0dda5-a029-43f7-adc7-20fabb8dbb13",
+                            "3": 8,
+                            "4": 2,
+                            "5": "100.00"
+                        },
+                        {
+                            "0": 4,
+                            "1": "2023-03-17 04:45:53",
+                            "2": "8e93ee17-9256-4f13-a6be-b9c5c888a7c3",
+                            "3": 4,
+                            "4": 1,
+                            "5": "599.00"
+                        },
+                        {
+                            "0": 5,
+                            "1": "2024-12-05 13:28:12",
+                            "2": "2e418258-86bb-4b8b-8c14-406b83c12e28",
+                            "3": 8,
+                            "4": 1,
+                            "5": "50.00"
+                        },
+                        {
+                            "0": 6,
+                            "1": "2023-09-07 02:57:20",
+                            "2": "2e418258-86bb-4b8b-8c14-406b83c12e28",
+                            "3": 10,
+                            "4": 1,
+                            "5": "30.00"
+                        },
+                        {
+                            "0": 7,
+                            "1": "2023-08-05 10:50:25",
+                            "2": "fcb0dda5-a029-43f7-adc7-20fabb8dbb13",
+                            "3": 9,
+                            "4": 5,
+                            "5": "750.00"
+                        },
+                        {
+                            "0": 8,
+                            "1": "2023-01-15 21:40:23",
+                            "2": "8e93ee17-9256-4f13-a6be-b9c5c888a7c3",
+                            "3": 3,
+                            "4": 1,
+                            "5": "699.00"
+                        },
+                        {
+                            "0": 9,
+                            "1": "2023-11-22 04:32:42",
+                            "2": "fcb0dda5-a029-43f7-adc7-20fabb8dbb13",
+                            "3": 5,
+                            "4": 4,
+                            "5": "3000.00"
+                        },
+                        {
+                            "0": 10,
+                            "1": "2023-10-01 11:35:29",
+                            "2": "2e418258-86bb-4b8b-8c14-406b83c12e28",
+                            "3": 8,
+                            "4": 4,
+                            "5": "200.00"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id_venda",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "data_venda",
+                            "field": "1",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "id_cliente",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "id_produto",
+                            "field": "3",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "quantidade",
+                            "field": "4",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "total_venda",
+                            "field": "5",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 10 records retrieved in 1.448ms"
+                    },
+                    "totalRowCount": 10,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT * FROM Vendas LIMIT 10",
+                    "updatable": true,
+                    "fullTableName": "Vendas"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 5,
+                "end": 5,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "45cd64a0-ffd8-40a1-da23-3c9e0149c132"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 48
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "45cd64a0-ffd8-40a1-da23-3c9e0149c132",
+                    "rows": [
+                        {
+                            "0": 829
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "total_clientes",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 2.015ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT COUNT(*) AS total_clientes FROM Clientes",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 6,
+                "end": 6,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "7964f2b5-72fa-4f2b-99b2-d0f2f4a896cf"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 48
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "7964f2b5-72fa-4f2b-99b2-d0f2f4a896cf",
+                    "rows": [
+                        {
+                            "0": 829
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "total_clientes",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 1.948ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT COUNT(*) AS total_clientes FROM Clientes",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 7,
+                "end": 7,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "db9d2db2-4525-4037-905e-80a28a0ad5f9"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 48
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "db9d2db2-4525-4037-905e-80a28a0ad5f9",
+                    "rows": [
+                        {
+                            "0": 11
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "total_produtos",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 1.639ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT COUNT(*) AS total_produtos FROM Produtos",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 8,
+                "end": 8,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "7afd5eb2-069f-4c1e-9070-95c38a7ee858"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 44
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "7afd5eb2-069f-4c1e-9070-95c38a7ee858",
+                    "rows": [
+                        {
+                            "0": 2687
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "total_vendas",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 2.483ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT COUNT(*) AS total_vendas FROM Vendas",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 9,
+                "end": 27,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "df134ba8-19bd-4dc8-bdc6-1377e7bfe3b5"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 409
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "df134ba8-19bd-4dc8-bdc6-1377e7bfe3b5",
+                    "rows": [
+                        {
+                            "0": 2033,
+                            "1": "2024-04-11 08:23:49",
+                            "2": "Cecília Nogueira",
+                            "3": "Costa dos Dourados",
+                            "4": "Alagoas",
+                            "5": "Protetor de tela de vidro",
+                            "6": "Acessórios",
+                            "7": 5,
+                            "8": "50.00"
+                        },
+                        {
+                            "0": 803,
+                            "1": "2023-03-29 01:56:43",
+                            "2": "Murilo Costa",
+                            "3": "Leão Paulista",
+                            "4": "Piauí",
+                            "5": "Protetor de tela de vidro",
+                            "6": "Acessórios",
+                            "7": 2,
+                            "8": "20.00"
+                        },
+                        {
+                            "0": 2495,
+                            "1": "2023-03-27 05:49:47",
+                            "2": "Bella Vargas",
+                            "3": "Câmara Verde",
+                            "4": "Tocantins",
+                            "5": "Carregador USB-C",
+                            "6": "Acessórios",
+                            "7": 4,
+                            "8": "100.00"
+                        },
+                        {
+                            "0": 2383,
+                            "1": "2023-11-04 14:10:29",
+                            "2": "Arthur Cunha",
+                            "3": "Barbosa Alegre",
+                            "4": "Rio Grande do Norte",
+                            "5": "Xiaomi 12",
+                            "6": "Celulares",
+                            "7": 2,
+                            "8": "1198.00"
+                        },
+                        {
+                            "0": 2512,
+                            "1": "2024-10-02 08:15:10",
+                            "2": "Yasmin Nunes",
+                            "3": "Cirino",
+                            "4": "São Paulo",
+                            "5": "Protetor de tela de vidro",
+                            "6": "Acessórios",
+                            "7": 1,
+                            "8": "10.00"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id_venda",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "data_venda",
+                            "field": "1",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "nome_cliente",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "cidade",
+                            "field": "3",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "estado",
+                            "field": "4",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "nome_produto",
+                            "field": "5",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "categoria",
+                            "field": "6",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "quantidade",
+                            "field": "7",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "total_venda",
+                            "field": "8",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 32.088ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT\n    v.id_venda,\n    v.data_venda,\n    c.nome AS nome_cliente,\n    c.cidade,\n    c.estado,\n    p.nome AS nome_produto,\n    p.categoria,\n    v.quantidade,\n    v.total_venda\nFROM\n    Vendas AS v\nJOIN\n    Clientes AS c ON v.id_cliente = c.id_cliente\nJOIN\n    Produtos AS p ON v.id_produto = p.id_produto\nORDER BY\n    RAND() -- Ordena aleatoriamente para obter uma amostra diferente a cada execução\nLIMIT 5",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 28,
+                "end": 28,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "7a17b15b-c863-45fe-9bcd-4a7609c36060"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 57
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "7a17b15b-c863-45fe-9bcd-4a7609c36060",
+                    "rows": [
+                        {
+                            "0": "2941500.00"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "faturamento_total",
+                            "field": "0",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 3.13ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT SUM(total_venda) AS faturamento_total FROM Vendas",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 29,
+                "end": 40,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "e551eb1b-72d8-4ca9-8121-f5b84db83f9b"
+                    ]
+                },
+                "currentHeight": 231,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 231
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "e551eb1b-72d8-4ca9-8121-f5b84db83f9b",
+                    "rows": [
+                        {
+                            "0": "Google Pixel 6",
+                            "1": "823"
+                        },
+                        {
+                            "0": "Carregador USB-C",
+                            "1": "772"
+                        },
+                        {
+                            "0": "iPhone 13",
+                            "1": "767"
+                        },
+                        {
+                            "0": "Protetor de tela de vidro",
+                            "1": "738"
+                        },
+                        {
+                            "0": "Capa de Silicone",
+                            "1": "736"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "nome_produto",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "quantidade_total_vendida",
+                            "field": "1",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 9.294ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT\n    p.nome AS nome_produto,\n    SUM(v.quantidade) AS quantidade_total_vendida\nFROM\n    Vendas AS v\nJOIN\n    Produtos AS p ON v.id_produto = p.id_produto\nGROUP BY\n    p.nome\nORDER BY\n    quantidade_total_vendida DESC\nLIMIT 5",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 41,
+                "end": 52,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "65b3e2a1-5c3a-4330-e2b5-5fb436736683"
+                    ]
+                },
+                "currentHeight": 216,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 208
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "d0e8203c-a4e8-4b9d-87ff-7dcf2ab143a6",
+                    "resultId": "65b3e2a1-5c3a-4330-e2b5-5fb436736683",
+                    "rows": [
+                        {
+                            "0": "Mato Grosso",
+                            "1": "169768.00"
+                        },
+                        {
+                            "0": "Rio Grande do Sul",
+                            "1": "169472.00"
+                        },
+                        {
+                            "0": "Mato Grosso do Sul",
+                            "1": "162168.00"
+                        },
+                        {
+                            "0": "Rio Grande do Norte",
+                            "1": "150226.00"
+                        },
+                        {
+                            "0": "Bahia",
+                            "1": "146489.00"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "estado",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "valor_total_vendas",
+                            "field": "1",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 31.707ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT\n    c.estado,\n    SUM(v.total_venda) AS valor_total_vendas\nFROM\n    Vendas AS v\nJOIN\n    Clientes AS c ON v.id_cliente = c.id_cliente\nGROUP BY\n    c.estado\nORDER BY\n    valor_total_vendas DESC\nLIMIT 5",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 53,
+                "end": 53,
+                "language": "mysql",
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        }
+    ]
+}
