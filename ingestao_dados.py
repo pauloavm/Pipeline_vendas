@@ -59,35 +59,49 @@ if __name__ == "__main__":
         exit()
 
     conn = None
+    sucesso = True
     try:
         print("Conectando ao banco de dados MySQL...")
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
         print("Conexão bem-sucedida.")
 
-        # Ordem de ingestão é crucial por causa das chaves estrangeiras
-
         # 1. Inserir Produtos
-        sql_produtos = "INSERT INTO Produtos (id_produto, nome, categoria, preco_unitario) VALUES (%s, %s, %s, %s)"
-        if inserir_dados_do_csv(cursor, "data/produtos.csv", sql_produtos):
+        sql_produtos = "INSERT IGNORE INTO Produtos (id_produto, nome, categoria, preco_unitario) VALUES (%s, %s, %s, %s)"
+        if not inserir_dados_do_csv(cursor, "data/produtos.csv", sql_produtos):
+            sucesso = False
+        else:
             conn.commit()
 
-        # 2. Inserir Clientes
-        sql_clientes = "INSERT INTO Clientes (id_cliente, nome, email, pais) VALUES (%s, %s, %s, %s)"
-        if inserir_dados_do_csv(cursor, "data/clientes.csv", sql_clientes):
-            conn.commit()
+        # 2. Inserir Clientes com os novos campos
+        if sucesso:
+            # Atualizado para incluir os novos campos
+            sql_clientes = "INSERT IGNORE INTO Clientes (id_cliente, nome, email, pais, estado, cidade) VALUES (%s, %s, %s, %s, %s, %s)"
+            if not inserir_dados_do_csv(cursor, "data/clientes.csv", sql_clientes):
+                sucesso = False
+            else:
+                conn.commit()
 
         # 3. Inserir Vendas
-        sql_vendas = "INSERT INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)"
-        if inserir_dados_do_csv(cursor, "data/vendas.csv", sql_vendas):
-            conn.commit()
+        if sucesso:
+            sql_vendas = "INSERT INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)"
+            if not inserir_dados_do_csv(cursor, "data/vendas.csv", sql_vendas):
+                sucesso = False
+            else:
+                conn.commit()
 
-        print("\nProcesso de ingestão de dados concluído com sucesso!")
+        if sucesso:
+            print("\nProcesso de ingestão de dados concluído com sucesso!")
+        else:
+            print(
+                "\nO processo de ingestão falhou. Por favor, verifique os erros acima."
+            )
+            conn.rollback()
 
     except mysql.connector.Error as err:
         print(f"Erro de banco de dados: {err}")
         if conn:
-            conn.rollback()  # Desfaz a transação em caso de erro
+            conn.rollback()
     finally:
         if conn and conn.is_connected():
             cursor.close()
