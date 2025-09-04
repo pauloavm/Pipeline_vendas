@@ -27,7 +27,7 @@
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 42,
+                "lineNumber": 41,
                 "column": 1
             },
             "firstPositionDeltaTop": -5
@@ -49,38 +49,38 @@
                         {
                             "type": 2,
                             "index": 0,
-                            "resultId": "d8e7b63b-34ec-49dc-fd61-ba8554bd0208",
-                            "content": "OK, 3 rows affected in 14.094ms"
+                            "resultId": "bf5abf36-ec2d-4903-e4d1-693826482cbe",
+                            "content": "OK, 3 rows affected in 35.255ms"
                         },
                         {
                             "type": 2,
                             "index": 1,
-                            "resultId": "bf9364d1-6924-415c-8091-dd32d8b236e8",
-                            "content": "OK, 1 row affected in 1.443ms"
+                            "resultId": "4d6cb729-db0c-4df9-d401-8b42613a280e",
+                            "content": "OK, 1 row affected in 1.54ms"
                         },
                         {
                             "type": 2,
                             "index": 2,
-                            "resultId": "ff88c1ba-2d6f-4d12-be34-cba3a5ae7d39",
-                            "content": "OK, 0 records retrieved in 1.229ms"
+                            "resultId": "9e6b25ae-c997-4be1-998d-d239651a2c90",
+                            "content": "OK, 0 records retrieved in 1.198ms"
                         },
                         {
                             "type": 2,
                             "index": 3,
-                            "resultId": "1a976188-d018-4546-f208-9b4878af5189",
-                            "content": "OK, 0 records retrieved in 13.005ms"
+                            "resultId": "671b63a1-3a3b-4cd0-c94f-a4bb7bb7c9a6",
+                            "content": "OK, 0 records retrieved in 16.387ms"
                         },
                         {
                             "type": 2,
                             "index": 4,
-                            "resultId": "c71c83e3-3f94-4e3c-bd2f-d617620d54b3",
-                            "content": "OK, 0 records retrieved in 34.296ms"
+                            "resultId": "795fa534-7a58-4573-d03a-5e1d2574513e",
+                            "content": "OK, 0 records retrieved in 12.861ms"
                         },
                         {
                             "type": 2,
                             "index": 5,
-                            "resultId": "69e3ec07-c0bb-4ec2-91b3-5ec50b1668ac",
-                            "content": "OK, 0 records retrieved in 13.871ms"
+                            "resultId": "2362d255-014b-4e3b-c0f5-c28a74ebd79b",
+                            "content": "OK, 0 records retrieved in 14.435ms"
                         }
                     ]
                 },
@@ -182,7 +182,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "e9804616-dc45-402d-ca33-c189675ce4d8"
+                        "e512351e-7291-452c-823d-8441ba40c267"
                     ]
                 },
                 "currentHeight": 216,
@@ -201,8 +201,8 @@
             },
             "data": [
                 {
-                    "tabId": "31b4bb28-114c-4459-d9f3-72ffddf141db",
-                    "resultId": "e9804616-dc45-402d-ca33-c189675ce4d8",
+                    "tabId": "3faaf51c-1c83-4f7e-e34d-8b9f00f3577f",
+                    "resultId": "e512351e-7291-452c-823d-8441ba40c267",
                     "rows": [
                         {
                             "0": "information_schema"
@@ -241,7 +241,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 5 records retrieved in 1.522ms"
+                        "text": "OK, 5 records retrieved in 1.468ms"
                     },
                     "totalRowCount": 5,
                     "hasMoreRows": false,

@@ -3,10 +3,9 @@ import random
 from datetime import datetime, timedelta
 from faker import Faker
 import os
-import hashlib  # ADICIONADO: Importar a biblioteca de hash
+import hashlib
 
 # --- INÍCIO: Configuração Inicial ---
-# Foco exclusivo no Brasil
 faker = Faker("pt_BR")
 
 produtos_eletronicos = {
@@ -31,8 +30,7 @@ produtos_eletronicos = {
 
 def checar_e_renomear_arquivo_existente(caminho_arquivo):
     """
-    Verifica se um arquivo existe e o renomeia. Útil para arquivos que
-    são completamente recriados, como o de produtos.
+    Verifica se um arquivo existe e o renomeia com um timestamp.
     """
     if os.path.exists(caminho_arquivo):
         mod_time = os.path.getmtime(caminho_arquivo)
@@ -44,6 +42,39 @@ def checar_e_renomear_arquivo_existente(caminho_arquivo):
         print(
             f"Arquivo existente '{caminho_arquivo}' foi renomeado para '{novo_caminho}'."
         )
+
+
+# --- INÍCIO: NOVA FUNÇÃO ---
+def preservar_e_renomear_clientes(clientes_path, vendas_path):
+    """
+    Lê o arquivo de clientes existente, seleciona uma amostra para preservar,
+    renomeia os arquivos antigos de clientes e vendas, e retorna a amostra.
+    """
+    clientes_preservados = []
+    if os.path.exists(clientes_path):
+        print(
+            f"Arquivo '{clientes_path}' encontrado. Preservando uma amostra de clientes..."
+        )
+        with open(clientes_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            todos_clientes = list(reader)
+
+        if todos_clientes:
+            percentual = random.choice([0.02, 0.06, 0.09])
+            num_a_preservar = int(len(todos_clientes) * percentual)
+            clientes_preservados = random.sample(todos_clientes, num_a_preservar)
+            print(
+                f"--> Preservando {len(clientes_preservados)} clientes ({percentual:.0%}) da base antiga."
+            )
+
+    # Renomeia os arquivos antigos DEPOIS de ler os dados
+    checar_e_renomear_arquivo_existente(clientes_path)
+    checar_e_renomear_arquivo_existente(vendas_path)
+
+    return clientes_preservados
+
+
+# --- FIM: NOVA FUNÇÃO ---
 
 
 def gerar_produtos_csv(caminho_arquivo="produtos.csv"):
@@ -77,59 +108,26 @@ def gerar_produtos_csv(caminho_arquivo="produtos.csv"):
 
 
 def obter_ultimo_id_e_data(caminho_vendas):
-    """
-    Lê um arquivo de vendas CSV para encontrar o ID e a data da última venda.
-    Retorna (0, None) se o arquivo não existir ou estiver vazio.
-    """
     if not os.path.exists(caminho_vendas):
         return 0, None
-
-    ultimo_id = 0
-    ultima_data_str = None
-    try:
-        with open(caminho_vendas, "r", encoding="utf-8") as f:
-            reader = csv.reader(f)
-            header = next(reader, None)
-
-            ultima_linha = None
-            for linha in reader:
-                if linha:  # Garante que a linha não está vazia
-                    ultima_linha = linha
-
-            if ultima_linha:
-                ultimo_id = int(ultima_linha[0])
-                ultima_data_str = ultima_linha[1]
-    except (IOError, IndexError, ValueError) as e:
-        print(
-            f"Aviso: Não foi possível ler o último registro de {caminho_vendas}. Começando do início. Erro: {e}"
-        )
-        return 0, None
-
-    return ultimo_id, ultima_data_str
+    # Esta função agora é menos crítica, pois sempre começamos um novo arquivo de vendas.
+    # Mas pode ser mantida para outros propósitos ou lógicas futuras.
+    return 0, None
 
 
 def generate_customer_email(customer_name):
-    """Gera um e-mail a partir de um nome de cliente."""
     name_parts = "".join(filter(str.isalnum, customer_name.lower().replace(" ", "")))
     email_domains = ["gmail.com", "outlook.com", "yahoo.com.br", "hotmail.com"]
     return f"{name_parts}@{random.choice(email_domains)}"
 
 
-# --- INÍCIO: FUNÇÃO ADICIONADA ---
 def gerar_id_cliente(email):
-    """
-    Gera um ID numérico determinístico e único para um dado e-mail usando hash.
-    """
-    # Usa o hash SHA-256 do e-mail para criar um identificador único
     hash_object = hashlib.sha256(email.encode("utf-8"))
-    # Pega os primeiros 8 caracteres do hash hexadecimal e converte para um inteiro
-    id_numerico = int(hash_object.hexdigest()[:8], 16)
+    id_numerico = int(hash_object.hexdigest()[:15], 16)
     return id_numerico
 
 
-# --- FIM: FUNÇÃO ADICIONADA ---
-
-
+# --- FUNÇÃO PRINCIPAL DE GERAÇÃO DE VENDAS (MODIFICADA) ---
 def gerar_clientes_e_vendas_csv(
     num_vendas,
     start_date,
@@ -139,47 +137,21 @@ def gerar_clientes_e_vendas_csv(
     vendas_path="vendas.csv",
 ):
     """
-    Gera ou anexa dados aos arquivos clientes.csv e vendas.csv.
-    As datas das vendas são distribuídas aleatoriamente dentro do intervalo,
-    mas SEMPRE em ordem crescente em relação ao id_venda.
+    Gera novos arquivos clientes.csv e vendas.csv.
+    Preserva uma amostra aleatória de clientes se o arquivo já existir.
     """
-    clientes_file_exists = os.path.exists(clientes_path)
-    vendas_file_exists = os.path.exists(vendas_path)
+    # 1. Preserva amostra de clientes e renomeia arquivos antigos
+    clientes_preservados = preservar_e_renomear_clientes(clientes_path, vendas_path)
 
-    ultimo_id, ultima_data_str = obter_ultimo_id_e_data(vendas_path)
-    id_inicial = ultimo_id + 1
-
-    if ultima_data_str:
-        try:
-            data_inicial_execucao = datetime.strptime(
-                ultima_data_str, "%Y-%m-%d %H:%M:%S"
-            )
-        except ValueError:
-            print(
-                f"Aviso: formato de data inválido no arquivo ({ultima_data_str}), usando start_date."
-            )
-            data_inicial_execucao = start_date
-        print(
-            f"Continuando a partir do ID {id_inicial} e data {data_inicial_execucao.strftime('%Y-%m-%d')}."
-        )
-    else:
-        data_inicial_execucao = start_date
-        print(f"Iniciando do ID 1 e data {data_inicial_execucao.strftime('%Y-%m-%d')}.")
-
-    if data_inicial_execucao < start_date:
-        data_inicial_execucao = start_date
+    # 2. Prepara o pool de clientes, começando com os preservados
+    clientes_pool = {cliente["email"]: cliente for cliente in clientes_preservados}
+    id_venda_counter = 1
 
     print(f"Gerando {num_vendas} novas vendas...")
 
-    clientes_pool = {}
-    if clientes_file_exists:
-        with open(clientes_path, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                clientes_pool[row["email"]] = row
-
-    with open(clientes_path, "a", newline="", encoding="utf-8") as clientes_file, open(
-        vendas_path, "a", newline="", encoding="utf-8"
+    # 3. Abre os novos arquivos em modo de escrita ('w')
+    with open(clientes_path, "w", newline="", encoding="utf-8") as clientes_file, open(
+        vendas_path, "w", newline="", encoding="utf-8"
     ) as vendas_file:
 
         clientes_fieldnames = [
@@ -202,50 +174,56 @@ def gerar_clientes_e_vendas_csv(
         ]
         vendas_writer = csv.DictWriter(vendas_file, fieldnames=vendas_fieldnames)
 
-        if not clientes_file_exists:
-            clientes_writer.writeheader()
-        if not vendas_file_exists:
-            vendas_writer.writeheader()
+        # 4. Escreve os cabeçalhos e os clientes preservados
+        clientes_writer.writeheader()
+        vendas_writer.writeheader()
+        if clientes_preservados:
+            clientes_writer.writerows(clientes_preservados)
 
-        total_segundos = int((end_date - data_inicial_execucao).total_seconds())
+        total_segundos = int((end_date - start_date).total_seconds())
         if total_segundos <= 0:
-            print("Erro: intervalo de datas inválido (end_date <= start_date).")
+            print("Erro: intervalo de datas inválido.")
             return
 
-        if num_vendas > total_segundos:
-            momentos = sorted(random.choices(range(total_segundos), k=num_vendas))
-        else:
-            momentos = sorted(random.sample(range(total_segundos), num_vendas))
+        momentos = sorted(random.sample(range(total_segundos), num_vendas))
 
-        for i, offset in enumerate(momentos, start=id_inicial):
-            data_venda = data_inicial_execucao + timedelta(seconds=offset)
+        # 5. Loop para gerar novas vendas e clientes
+        for offset in momentos:
+            data_venda = start_date + timedelta(seconds=offset)
 
-            nome_cliente = faker.name()
-            email_cliente = generate_customer_email(nome_cliente).lower()
-            # AGORA A FUNÇÃO EXISTE E SERÁ CHAMADA CORRETAMENTE
-            id_cliente_fix = gerar_id_cliente(email_cliente)
-
-            if email_cliente not in clientes_pool:
-                novo_cliente = {
-                    "id_cliente": id_cliente_fix,
-                    "nome": nome_cliente,
-                    "email": email_cliente,
-                    "pais": "Brasil",
-                    "estado": faker.state(),
-                    "cidade": faker.city(),
-                }
-                clientes_pool[email_cliente] = novo_cliente
-                clientes_writer.writerow(novo_cliente)
-                id_cliente_venda = novo_cliente["id_cliente"]
-            else:
+            # Decide se usa um cliente antigo (preservado) ou cria um novo
+            if (
+                clientes_pool and random.random() < 0.3
+            ):  # 30% de chance de ser um cliente recorrente
+                email_cliente = random.choice(list(clientes_pool.keys()))
                 id_cliente_venda = clientes_pool[email_cliente]["id_cliente"]
+            else:
+                nome_cliente = faker.name()
+                email_cliente = generate_customer_email(nome_cliente).lower()
+                id_cliente_fix = gerar_id_cliente(email_cliente)
+
+                if email_cliente not in clientes_pool:
+                    novo_cliente = {
+                        "id_cliente": id_cliente_fix,
+                        "nome": nome_cliente,
+                        "email": email_cliente,
+                        "pais": "Brasil",
+                        "estado": faker.state(),
+                        "cidade": faker.city(),
+                    }
+                    clientes_pool[email_cliente] = novo_cliente
+                    clientes_writer.writerow(novo_cliente)
+                    id_cliente_venda = novo_cliente["id_cliente"]
+                else:
+                    # Caso raro de colisão de e-mail gerado
+                    id_cliente_venda = clientes_pool[email_cliente]["id_cliente"]
 
             produto_escolhido_nome = random.choice(list(produtos_dict.keys()))
             produto_info = produtos_dict[produto_escolhido_nome]
             quantidade = random.randint(1, 3)
 
             venda = {
-                "id_venda": i,
+                "id_venda": id_venda_counter,
                 "data_venda": data_venda.strftime("%Y-%m-%d %H:%M:%S"),
                 "id_cliente": id_cliente_venda,
                 "id_produto": produto_info["id"],
@@ -253,15 +231,16 @@ def gerar_clientes_e_vendas_csv(
                 "total_venda": round(float(produto_info["preco"]) * quantidade, 2),
             }
             vendas_writer.writerow(venda)
+            id_venda_counter += 1
 
-            if (i - id_inicial + 1) % 100 == 0:
-                print(f"--> {i - id_inicial + 1}/{num_vendas} vendas geradas...")
+            if id_venda_counter % 100 == 0:
+                print(f"--> {id_venda_counter}/{num_vendas} vendas geradas...")
 
-    print(f"Dados adicionados com sucesso a {clientes_path} e {vendas_path}.")
+    print(f"Novos arquivos {clientes_path} e {vendas_path} gerados com sucesso.")
     print(f"Total de {len(clientes_pool)} clientes únicos registrados.")
 
 
-# --- Bloco Principal de Execução ---
+# --- Bloco Principal de Execução (sem alterações) ---
 if __name__ == "__main__":
     if not os.path.exists("data"):
         os.makedirs("data")
