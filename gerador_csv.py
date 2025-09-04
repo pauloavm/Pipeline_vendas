@@ -1,8 +1,9 @@
 import csv
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from faker import Faker
 import os
+import hashlib  # ADICIONADO: Importar a biblioteca de hash
 
 # --- INÍCIO: Configuração Inicial ---
 # Foco exclusivo no Brasil
@@ -28,8 +29,27 @@ produtos_eletronicos = {
 # --- FIM: Configuração Inicial ---
 
 
+def checar_e_renomear_arquivo_existente(caminho_arquivo):
+    """
+    Verifica se um arquivo existe e o renomeia. Útil para arquivos que
+    são completamente recriados, como o de produtos.
+    """
+    if os.path.exists(caminho_arquivo):
+        mod_time = os.path.getmtime(caminho_arquivo)
+        timestamp_str = datetime.fromtimestamp(mod_time).strftime("%Y%m%d_%H%M%S")
+        diretorio, nome_arquivo = os.path.split(caminho_arquivo)
+        novo_nome_arquivo = f"{timestamp_str}_{nome_arquivo}"
+        novo_caminho = os.path.join(diretorio, novo_nome_arquivo)
+        os.rename(caminho_arquivo, novo_caminho)
+        print(
+            f"Arquivo existente '{caminho_arquivo}' foi renomeado para '{novo_caminho}'."
+        )
+
+
 def gerar_produtos_csv(caminho_arquivo="produtos.csv"):
     """Gera o arquivo produtos.csv e retorna um dicionário com os produtos."""
+    checar_e_renomear_arquivo_existente(caminho_arquivo)
+
     print("Gerando arquivo produtos.csv...")
     produtos_dict = {}
     id_produto_counter = 1
@@ -56,11 +76,58 @@ def gerar_produtos_csv(caminho_arquivo="produtos.csv"):
     return produtos_dict
 
 
+def obter_ultimo_id_e_data(caminho_vendas):
+    """
+    Lê um arquivo de vendas CSV para encontrar o ID e a data da última venda.
+    Retorna (0, None) se o arquivo não existir ou estiver vazio.
+    """
+    if not os.path.exists(caminho_vendas):
+        return 0, None
+
+    ultimo_id = 0
+    ultima_data_str = None
+    try:
+        with open(caminho_vendas, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            header = next(reader, None)
+
+            ultima_linha = None
+            for linha in reader:
+                if linha:  # Garante que a linha não está vazia
+                    ultima_linha = linha
+
+            if ultima_linha:
+                ultimo_id = int(ultima_linha[0])
+                ultima_data_str = ultima_linha[1]
+    except (IOError, IndexError, ValueError) as e:
+        print(
+            f"Aviso: Não foi possível ler o último registro de {caminho_vendas}. Começando do início. Erro: {e}"
+        )
+        return 0, None
+
+    return ultimo_id, ultima_data_str
+
+
 def generate_customer_email(customer_name):
     """Gera um e-mail a partir de um nome de cliente."""
     name_parts = "".join(filter(str.isalnum, customer_name.lower().replace(" ", "")))
     email_domains = ["gmail.com", "outlook.com", "yahoo.com.br", "hotmail.com"]
     return f"{name_parts}@{random.choice(email_domains)}"
+
+
+# --- INÍCIO: FUNÇÃO ADICIONADA ---
+def gerar_id_cliente(email):
+    """
+    Gera um ID numérico determinístico e único para um dado e-mail usando hash.
+    """
+    # Usa o hash SHA-256 do e-mail para criar um identificador único
+    hash_object = hashlib.sha256(email.encode("utf-8"))
+    # Pega os primeiros 8 caracteres do hash hexadecimal e converte para um inteiro
+    id_numerico = int(hash_object.hexdigest()[:8], 16)
+    return id_numerico
+
+
+# --- FIM: FUNÇÃO ADICIONADA ---
 
 
 def gerar_clientes_e_vendas_csv(
@@ -71,16 +138,50 @@ def gerar_clientes_e_vendas_csv(
     clientes_path="clientes.csv",
     vendas_path="vendas.csv",
 ):
-    """Gera os arquivos clientes.csv e vendas.csv com dados do Brasil."""
-    print(f"Gerando {num_vendas} vendas e clientes do Brasil...")
+    """
+    Gera ou anexa dados aos arquivos clientes.csv e vendas.csv.
+    As datas das vendas são distribuídas aleatoriamente dentro do intervalo,
+    mas SEMPRE em ordem crescente em relação ao id_venda.
+    """
+    clientes_file_exists = os.path.exists(clientes_path)
+    vendas_file_exists = os.path.exists(vendas_path)
+
+    ultimo_id, ultima_data_str = obter_ultimo_id_e_data(vendas_path)
+    id_inicial = ultimo_id + 1
+
+    if ultima_data_str:
+        try:
+            data_inicial_execucao = datetime.strptime(
+                ultima_data_str, "%Y-%m-%d %H:%M:%S"
+            )
+        except ValueError:
+            print(
+                f"Aviso: formato de data inválido no arquivo ({ultima_data_str}), usando start_date."
+            )
+            data_inicial_execucao = start_date
+        print(
+            f"Continuando a partir do ID {id_inicial} e data {data_inicial_execucao.strftime('%Y-%m-%d')}."
+        )
+    else:
+        data_inicial_execucao = start_date
+        print(f"Iniciando do ID 1 e data {data_inicial_execucao.strftime('%Y-%m-%d')}.")
+
+    if data_inicial_execucao < start_date:
+        data_inicial_execucao = start_date
+
+    print(f"Gerando {num_vendas} novas vendas...")
 
     clientes_pool = {}
+    if clientes_file_exists:
+        with open(clientes_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                clientes_pool[row["email"]] = row
 
-    with open(clientes_path, "w", newline="", encoding="utf-8") as clientes_file, open(
-        vendas_path, "w", newline="", encoding="utf-8"
+    with open(clientes_path, "a", newline="", encoding="utf-8") as clientes_file, open(
+        vendas_path, "a", newline="", encoding="utf-8"
     ) as vendas_file:
 
-        # Configuração do CSV de Clientes com os novos campos
         clientes_fieldnames = [
             "id_cliente",
             "nome",
@@ -90,9 +191,7 @@ def gerar_clientes_e_vendas_csv(
             "cidade",
         ]
         clientes_writer = csv.DictWriter(clientes_file, fieldnames=clientes_fieldnames)
-        clientes_writer.writeheader()
 
-        # Configuração do CSV de Vendas
         vendas_fieldnames = [
             "id_venda",
             "data_venda",
@@ -102,43 +201,52 @@ def gerar_clientes_e_vendas_csv(
             "total_venda",
         ]
         vendas_writer = csv.DictWriter(vendas_file, fieldnames=vendas_fieldnames)
-        vendas_writer.writeheader()
 
-        for i in range(1, num_vendas + 1):
-            id_cliente_venda = None
+        if not clientes_file_exists:
+            clientes_writer.writeheader()
+        if not vendas_file_exists:
+            vendas_writer.writeheader()
 
-            if random.random() < 0.7 and clientes_pool:
-                id_cliente_venda = random.choice(list(clientes_pool.values()))[
-                    "id_cliente"
-                ]
+        total_segundos = int((end_date - data_inicial_execucao).total_seconds())
+        if total_segundos <= 0:
+            print("Erro: intervalo de datas inválido (end_date <= start_date).")
+            return
+
+        if num_vendas > total_segundos:
+            momentos = sorted(random.choices(range(total_segundos), k=num_vendas))
+        else:
+            momentos = sorted(random.sample(range(total_segundos), num_vendas))
+
+        for i, offset in enumerate(momentos, start=id_inicial):
+            data_venda = data_inicial_execucao + timedelta(seconds=offset)
+
+            nome_cliente = faker.name()
+            email_cliente = generate_customer_email(nome_cliente).lower()
+            # AGORA A FUNÇÃO EXISTE E SERÁ CHAMADA CORRETAMENTE
+            id_cliente_fix = gerar_id_cliente(email_cliente)
+
+            if email_cliente not in clientes_pool:
+                novo_cliente = {
+                    "id_cliente": id_cliente_fix,
+                    "nome": nome_cliente,
+                    "email": email_cliente,
+                    "pais": "Brasil",
+                    "estado": faker.state(),
+                    "cidade": faker.city(),
+                }
+                clientes_pool[email_cliente] = novo_cliente
+                clientes_writer.writerow(novo_cliente)
+                id_cliente_venda = novo_cliente["id_cliente"]
             else:
-                nome_cliente = faker.name()
-                email_cliente = generate_customer_email(nome_cliente).lower()
-
-                if email_cliente not in clientes_pool:
-                    novo_cliente = {
-                        "id_cliente": str(faker.uuid4()),
-                        "nome": nome_cliente,
-                        "email": email_cliente,
-                        "pais": "Brasil",
-                        "estado": faker.state(),
-                        "cidade": faker.city(),
-                    }
-                    clientes_pool[email_cliente] = novo_cliente
-                    clientes_writer.writerow(novo_cliente)
-                    id_cliente_venda = novo_cliente["id_cliente"]
-                else:
-                    id_cliente_venda = clientes_pool[email_cliente]["id_cliente"]
+                id_cliente_venda = clientes_pool[email_cliente]["id_cliente"]
 
             produto_escolhido_nome = random.choice(list(produtos_dict.keys()))
             produto_info = produtos_dict[produto_escolhido_nome]
-            quantidade = random.randint(1, 5)
+            quantidade = random.randint(1, 3)
 
             venda = {
                 "id_venda": i,
-                "data_venda": faker.date_time_between(
-                    start_date=start_date, end_date=end_date
-                ),
+                "data_venda": data_venda.strftime("%Y-%m-%d %H:%M:%S"),
                 "id_cliente": id_cliente_venda,
                 "id_produto": produto_info["id"],
                 "quantidade": quantidade,
@@ -146,11 +254,11 @@ def gerar_clientes_e_vendas_csv(
             }
             vendas_writer.writerow(venda)
 
-            if i % 100 == 0:
-                print(f"--> {i}/{num_vendas} vendas geradas...")
+            if (i - id_inicial + 1) % 100 == 0:
+                print(f"--> {i - id_inicial + 1}/{num_vendas} vendas geradas...")
 
-    print(f"Arquivo {clientes_path} e {vendas_path} gerados com sucesso.")
-    print(f"Total de {len(clientes_pool)} clientes únicos criados.")
+    print(f"Dados adicionados com sucesso a {clientes_path} e {vendas_path}.")
+    print(f"Total de {len(clientes_pool)} clientes únicos registrados.")
 
 
 # --- Bloco Principal de Execução ---
@@ -161,7 +269,7 @@ if __name__ == "__main__":
     produtos_info = gerar_produtos_csv("data/produtos.csv")
 
     num_records_input = input(
-        "Insira a quantidade de VENDAS que deseja criar (padrão: 1000): "
+        "Insira a quantidade de NOVAS VENDAS a criar (padrão: 1000): "
     )
     num_records = int(num_records_input.strip()) if num_records_input.strip() else 1000
 
@@ -172,7 +280,7 @@ if __name__ == "__main__":
     year_end = int(year_end_input) if year_end_input.strip() else 2024
 
     start_date = datetime(year_start, 1, 1)
-    end_date = datetime(year_end, 12, 31)
+    end_date = datetime(year_end, 12, 31, 23, 59, 59)
 
     gerar_clientes_e_vendas_csv(
         num_vendas=num_records,
@@ -184,4 +292,4 @@ if __name__ == "__main__":
     )
 
     print("\nProcesso de geração de dados concluído com sucesso!")
-    print("Os ficheiros CSV foram guardados na pasta 'data'.")
+    print("Os ficheiros CSV foram atualizados na pasta 'data'.")
