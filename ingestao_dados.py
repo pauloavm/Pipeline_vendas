@@ -52,55 +52,51 @@ def inserir_dados_do_csv(cursor, caminho_arquivo, sql_insert):
         return False
 
 
-# --- Bloco Principal de Execução ---
+# --- Bloco Principal de Execução (Refatorado) ---
 if __name__ == "__main__":
     if not all(DB_CONFIG.values()):
         print("Erro: Credenciais do banco de dados incompletas no arquivo .env.")
         exit()
 
     conn = None
-    sucesso = True
     try:
         print("Conectando ao banco de dados MySQL...")
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
         print("Conexão bem-sucedida.")
 
+        # --- Início da Transação ---
+
         # 1. Inserir Produtos
         sql_produtos = "INSERT IGNORE INTO Produtos (id_produto, nome, categoria, preco_unitario) VALUES (%s, %s, %s, %s)"
         if not inserir_dados_do_csv(cursor, "data/produtos.csv", sql_produtos):
-            sucesso = False
-        else:
-            conn.commit()
-
-        # 2. Inserir Clientes com os novos campos
-        if sucesso:
-            # Atualizado para incluir os novos campos
-            sql_clientes = "INSERT IGNORE INTO Clientes (id_cliente, nome, email, pais, estado, cidade) VALUES (%s, %s, %s, %s, %s, %s)"
-            if not inserir_dados_do_csv(cursor, "data/clientes.csv", sql_clientes):
-                sucesso = False
-            else:
-                conn.commit()
-
-        # 3. Inserir Vendas
-        if sucesso:
-            sql_vendas = "INSERT INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)"
-            if not inserir_dados_do_csv(cursor, "data/vendas.csv", sql_vendas):
-                sucesso = False
-            else:
-                conn.commit()
-
-        if sucesso:
-            print("\nProcesso de ingestão de dados concluído com sucesso!")
-        else:
-            print(
-                "\nO processo de ingestão falhou. Por favor, verifique os erros acima."
+            raise Exception(
+                "Falha na ingestão de produtos. A transação será revertida."
             )
-            conn.rollback()
 
-    except mysql.connector.Error as err:
-        print(f"Erro de banco de dados: {err}")
+        # 2. Inserir Clientes
+        sql_clientes = "INSERT IGNORE INTO Clientes (id_cliente, nome, email, pais, estado, cidade) VALUES (%s, %s, %s, %s, %s, %s)"
+        if not inserir_dados_do_csv(cursor, "data/clientes.csv", sql_clientes):
+            raise Exception(
+                "Falha na ingestão de clientes. A transação será revertida."
+            )
+
+        # 3. Inserir Vendas (ALTERADO: Use INSERT IGNORE para idempotência)
+        # Usar INSERT IGNORE é útil se você re-executar o script. Vendas com IDs já existentes não causarão erro.
+        sql_vendas = "INSERT IGNORE INTO Vendas (id_venda, data_venda, id_cliente, id_produto, quantidade, total_venda) VALUES (%s, %s, %s, %s, %s, %s)"
+        if not inserir_dados_do_csv(cursor, "data/vendas.csv", sql_vendas):
+            raise Exception("Falha na ingestão de vendas. A transação será revertida.")
+
+        # Se tudo correu bem, confirma a transação
+        conn.commit()
+        print(
+            "\nProcesso de ingestão de dados concluído com sucesso! Todas as alterações foram salvas."
+        )
+
+    except Exception as err:
+        print(f"\nErro: {err}")
         if conn:
+            print("Revertendo todas as alterações (rollback)...")
             conn.rollback()
     finally:
         if conn and conn.is_connected():
