@@ -27,10 +27,10 @@
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 41,
+                "lineNumber": 31,
                 "column": 1
             },
-            "firstPositionDeltaTop": -5
+            "firstPositionDeltaTop": -8
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -182,7 +182,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "e512351e-7291-452c-823d-8441ba40c267"
+                        "ae3309f6-9007-451c-f6f1-f50134e28d65"
                     ]
                 },
                 "currentHeight": 216,
@@ -201,8 +201,8 @@
             },
             "data": [
                 {
-                    "tabId": "3faaf51c-1c83-4f7e-e34d-8b9f00f3577f",
-                    "resultId": "e512351e-7291-452c-823d-8441ba40c267",
+                    "tabId": "257f4455-0e82-4f7a-de9f-44443c20f9e7",
+                    "resultId": "ae3309f6-9007-451c-f6f1-f50134e28d65",
                     "rows": [
                         {
                             "0": "information_schema"
